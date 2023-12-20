@@ -12,7 +12,8 @@
 
 // imports data from api
 function importData(sheet) {
-  if (!sheet) {var sheet = SpreadsheetApp.openById(FILE_OUT_DATA).getSheetByName("JSONCache")}
+  // for standalone calls
+  if (!sheet) {var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataLevels")}
   // function
   let shards = sheet.getRange(2,1,sheet.getLastRow()-1,1).getDisplayValues()
   let {levels, players, body} = JSON.parse(shards.map(shard => shard[0] == "'" ? shard.slice(1) : shard).join(""))
@@ -27,37 +28,21 @@ function importData(sheet) {
 
 // == DATA GENERATION ==
 
-// generates data from import sheets
+// return type: []Data; provide custom genLevels and genPlayers functions
+// a levelIndex/playerIndex specifies a canonical ordering (via index in the array) of levels/players,
+// and links each index to an object specifying the indices in the source tables of the level/player
+// levelIndices/playerIndices are arrays of these, one for each output data unit
 function generateData(srcAddresses) {
   // for standalone calls
   if (!srcAddresses) {srcAddresses = SRC_ADDRESSES}
-  // load
-  let sources = importTables(...srcAddresses)
-  let colours = importColours("A:A", ...srcAddresses)
-  sources.forEach((_, i) => sources[i].assignColours(colours[i]))
-  
-  // generate levels from all tables and verify they're identical
-  let levels
-  for (let levelsImport of sources.map(generateLevels)) {
-    let [str1, str2] = [JSON.stringify(levels?.names), JSON.stringify(levelsImport?.names)]
-    if (levels && str1 != str2 ) {
-      let text = `fatal level error: mismatch in imported level headers; compare:\n${str1}\n${str2}`
-      LOG_ERROR.push(text); SHEET_DASH.getRange("C3").setValue(LOG_ERROR.join("\n")); throw text
-    }
-    levels = levelsImport
-  }
-  // generate runs and data + flatten
-  let runs = sources.map(generateRuns).flat()
-  let data = {levels, runs}
 
-  // process players
-  nameFix(data)                                             // correct names
-  nameMerge(data)                                           // merge tables by name (overwrite ils)
-
-  // return
-  SHEET_DASH.getRange("A3:B3").setValues([[LOG_NAME_CHANGE.sort().join("\n"), LOG_TIME_REVERT.join("\n")]])
+  // function
+  let sources  = importTables(...srcAddresses)    // fetches sources, return type []Source
+  let lIndices = genLevels(sources)               // generates level header,  return type []{name, code, index: []}
+  let pIndices = genPlayers(sources)              // generates player header, return type []{name, index: []}
+  let datas    = lIndices.map((_,i) => compileData(sources, lIndices[i], pIndices[i])) // packs Data
   console.log("generated data")
-  return [data] // standard format: []Data
+  return datas // format: []Data
 }
 
 
@@ -89,22 +74,34 @@ function importTables(...sheetInfo) {
 } // format: []Source
 
 
-// fetching colours via the above would ×6 the data fetched so we'll use SpreadsheetApp for that separately
-// this function is much slower than importTables lol
-// this isn't guaranteed synced with the rest of the sheet data, but they're only colours, harmless if wrong
-function importColours(rangeQuery, ...sheetInfo) {
-  let output = sheetInfo.map((tag,i) => SpreadsheetApp.openById(tag.id).getSheetByName(tag.tab).getRange(rangeQuery)
-    .getFontColorObjects().map(row => row.map(cell => cell.asRgbColor().asHexString())))
-  console.log(`fetched colours`)
-  return output
-}
-
-
-function generateRuns(source) {
-  return source.table.slice(source.rStart).map(row => ({
-    head: { name: row[0].value, note: row[0].note, colour: row[0]?.colour },
-    body: row.slice(source.cStart)
+function compileData(sources, levelIndex, playerIndex) {
+  // create runs tables from raw tables + level and player indices
+  let runs = playerIndex.map(player => levelIndex.map(level => {
+    let group = []  // a group of all runs with same player and level
+    for (let [j, source] of sources.entries()) {
+      let lArr = level.index[j]; if (typeof lArr == "number") {lArr = [lArr]} else if (!lArr) {lArr = []}
+      if (typeof l == "number") {l = [level.index[j]]}   // l is now always an array of indices
+      let p = player.index[j]
+      if (player.index[j] >= 0) {
+        switch (source.pAxis) {
+          case "r": group.push(...lArr.map(l => source.table[source.rStart + p][source.cStart + l])); break
+          case "c": group.push(...lArr.map(l => source.table[source.rStart + l][source.cStart + p])); break
+        }
+      }
+    }
+    // merge runs, selecting best one; a blank one is created if all are invalid
+    return group.reduce(REDUCE_FUNCTION, new Run())
   }))
+
+  let levels = {
+    names:      levelIndex.map(level => level.name),
+    indices:    Object.fromEntries(levelIndex.map((level,l)=>[level.name,l])),
+    reversed:   levelIndex.map(_ => false),
+    codes:      levelIndex.map(level => level.code),
+    entries:    [], cutoffs: [],                              // computed later as part of processing
+  }
+  levels = Object.assign(levels, genLevelMetadata(levels.codes))
+  return {levels: levels, runs: runs.map((row,p) => ({head: {name: playerIndex[p].name}, body: row}))}
 }
 
 
@@ -162,12 +159,5 @@ class Source {
     // fill out table rows since otherwise they may not span table
     let width = Math.max(...(this.table.map(row => row.length)))
     this.table.forEach(row => row.push(...Array(width - row.length).fill(new Run())))
-  }
-  assignColours(colours) {
-    for (let i = 0; i < Math.min(colours.length, this.table.length); i++) {
-      for (let j = 0; j < Math.min(colours[i].length, this.table[i].length); j++) {
-        this.table[i][j].colour = colours[i][j]
-      }
-    }
   }
 }

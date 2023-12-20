@@ -7,11 +7,11 @@ ABUSE_PAGE = "" // link to abuse documentation
 function exportTable(data, sheet, rStart, cStart, displayScore) {
   // for standalone calls
   if (!data) {
-    var data = importData(SpreadsheetApp.openById(FILE_OUT_DATA).getSheetByName("JSONCache"))
-    annotate(data,"points")
+    var data = importData(SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataLevels"))
+    annotate(data, "l1")
   }
-  if (!sheet) {var sheet = SpreadsheetApp.openById(FILE_OUT_TABLE).getSheetByName("SMS Accurate")}
-  if (!rStart && !cStart) {var [rStart, cStart] = [4, 7] }
+  if (!sheet) {var sheet = SpreadsheetApp.openById(FILE_OUT_TABLE).getSheetByName("SM64 XCam")}
+  if (!rStart && !cStart) {var [rStart, cStart] = [1, 7] }
 
   // parameters
   let P_START = rStart+1; let L_START = cStart+1  // legacy code; P_START/L_START are row/col numbers not indices
@@ -44,7 +44,7 @@ function exportTable(data, sheet, rStart, cStart, displayScore) {
   for (let row of bolds) { for (let i of [0,1,2,3,4,6]) { row[i] = "bold" } }        // head bolds
 
   let P = runs.length
-  // sheet.getRange(1, L_START, 1, L).setValues([levels.codes]) // set levels to 1st row (enable for sm64)
+  sheet.getRange(1, L_START, 1, L).setValues([levels.codes]) // set levels to 1st row (enable for sm64)
   let rangeFull = sheet.getRange(P_START, 1, P, L_START + L - 1)
   let rangeHead = sheet.getRange(P_START, 1, P, L_START - 1)
   let rangeBody = sheet.getRange(P_START, L_START, P, L)
@@ -55,7 +55,7 @@ function exportTable(data, sheet, rStart, cStart, displayScore) {
   rangeFull.setVerticalAlignment("middle").setHorizontalAlignment("center").setFontSize(9).setFontFamily("Arial")
   sheet.getRange(P_START,1,P,1).setHorizontalAlignment("right")
   sheet.getRange(P_START,6,P,1).setFontStyle("italic")
-  sheet.getRange(4, L_START, 1, L).setValues([levels.cutoffs]) // set cutoffs to 4th row (enable for sms)
+  // sheet.getRange(4, L_START, 1, L).setValues([levels.cutoffs]) // set cutoffs to 4th row (enable for sms)
   for (let p = 0; p < P; p++) { for (let l = 0; l < L; l++) { if (runs[p].body[l].rank == 1) { // border highlights
     rangeBody.getCell(p+1, l+1).setBorder(null,null,true,null,false,false,"black",borderStyle)
   }}}
@@ -67,8 +67,8 @@ function exportTable(data, sheet, rStart, cStart, displayScore) {
 // saves data to data api sheet
 function exportData(data, sheet) {
   // for standalone calls: regenerate data (cos pointless to load from api and store back to api)
-  if (!data) {var data = generateData()[0]}
-  if (!sheet) {var sheet = SpreadsheetApp.openById(FILE_OUT_DATA).getSheetByName("JSONCache")}
+  if (!data) {var data = generateData()[1]}
+  if (!sheet) {var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataLevels")}
 
   // function
   // generate export data
@@ -95,6 +95,4 @@ function exportData(data, sheet) {
 
 
 // used to generate players.anonHTML (information about anonymisation for the settings tab of the viewer app)
-function genAnonHTML() { return `
-  <p><b>Hidden names</b>: Some player names are hidden by default (to an initial followed by a period, like <code>A.</code>) for abuse-related reasons. This leaderboard provides full data about all known speedrun records, and so has the option to show these names, but it is considered important for readers to be informed of why these names were hidden before using this option. Please click <a href="${ABUSE_PAGE}">here</a> for this info and more on the abuse policy.</p>
-`}
+function genAnonHTML() { return `` }

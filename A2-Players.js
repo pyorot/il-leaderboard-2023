@@ -1,52 +1,63 @@
-SMS_ALIAS = {}
+SM64_ALIAS = {}
 
+// input format: []Source
+// output format: []PlayerHeader (index of output data block → player header of output data block)
+// LevelHeader = []Player: {name, index: []Int (index of source → index of player in source)}
+// this mutates tables in sources (it expands out column 0 (Best Times) of data)
+function genPlayers(sources) {
+  // default parameters
+  if (!sources) { sources = importTables(
+    {id:"1J20aivGnvLlAuyRIMMclIFUmrkHXUzgcDmYa31gdtCI", tab:"Ultimate Star Spreadsheet v2", r:1, c:6, pAxis:"x"},
+    {id:"1X06GJL2BCy9AXjiV9Y8y-7KKkj4d9YI3dtTb2HVOyRs", tab:"Ultimate Sheet Extensions"   , r:1, c:6, pAxis:"x"}
+  )}
 
-// replaces names according to ALIAS dictionary
-function nameFix(data) {
-  for (let row of data.runs) {
-    let newName = SMS_ALIAS[row.head.name]
-    if (newName || newName === null) { // rename / delete respectively
-      LOG_NAME_CHANGE.push(`${row.head.name} → ${newName ?? "ø"}`)
-      row.head.name = newName
+  // generate from player columns
+  let playerDict = {} // {name, index: []}}
+  for (let [i, source] of sources.entries()) {
+    let header = source.table[0].map(cell => cell.value != "---" ? cell.value : cell.note).slice(source.cStart+1)
+    for (let [p,name] of header.entries()) {
+      let newName = SM64_ALIAS[name]
+      if (newName || newName === null) { // rename / delete respectively
+        LOG_NAME_CHANGE.push(`${name} → ${newName ?? "ø"}`)
+        name = newName
+        if (name == "ø") {continue}
+      }
+      if (!(name in playerDict)) { playerDict[name] = { name: name, index: [] } }
+      playerDict[name].index[i] = p + 1
     }
   }
-  data.runs = data.runs.filter(row => row.head.name)
-}
 
-
-// merges tables (performs overwrites)
-function nameMerge(data) {
-  let runs2 = {} // runs2 will be data.runs but merged
-  for (let row of data.runs) {
-    let name = row.head.name
-    if (!runs2[name]) {  // add
-      runs2[name] = row
-    } else {             // merge
-      let row2 = runs2[name]
-      if (row.head.note) {row2.head.note = row.head.note }
-      // overwrite non-black name colours; beware that the hex codes are sometimes #aarrggbb (hence slice(-6))
-      if (row.head.colour.slice(-6) != "000000") {row2.head.colour = row.head.colour}
-      for (let l = 0; l < data.levels.names.length; l++) {
-        let [oldValue, newValue] = [row2.body[l].value, row.body[l].value]
-        if (newValue) {
-          if (newValue == "x") {                  // delete
-            row2.body[l] = new Run()
-            // console.log("-", name, "|", data.levels.codes[l], ":", (oldValue ? oldValue : "ø"), "→ ø")
-          } else {                                // overwrite
-            row2.body[l] = row.body[l]
-            // console.log("+", name, "|", data.levels.codes[l], ":", (oldValue ? oldValue : "ø"), "→", newValue)
-          }
-          // warn if time is a regression
-          let reversed = data.levels.reversed[l]
-          let [oldTime, newTime] = [parseTime(oldValue), parseTime(newValue)]
-          if (oldTime && (newValue == "x" || (reversed ? -1 : 1) * (oldTime - newTime) < 0)) {
-            LOG_TIME_REVERT.push(`${name} | ${data.levels.codes[l]}: ${oldValue} → ${newValue}`)
-          }
-        } else if (row.body[l].note) {
-          row2.body[l].note = row.body[l].note    // override note (specified on empty cell)
-        }
+  // generate from best times column
+  let playerDictBest = {} // as above but for Best Times players; also has lists of row indices for their runs
+  for (let [i, source] of sources.entries()) {
+    let bestNames = source.table.map(row => row[source.cStart]).slice(1).map(cell => cell.note.split(/[\s\:]/)[0])
+    for (let [rowIndex,name] of bestNames.entries()) {
+      if (!name) {continue}
+      let newName = SM64_ALIAS[name]
+      if (newName || newName === null) { // rename / delete respectively
+        LOG_NAME_CHANGE.push(`${name} → ${newName ?? "ø"}`)
+        name = newName
+        if (name == "ø") {continue}
+      }
+      if (!(name in playerDictBest)) { playerDictBest[name] = { name: name, index: [], rows: [[], []] } }
+      playerDictBest[name].rows[i].push(rowIndex + 1)
+    }
+  }
+  // mutate tables: expand out best times column
+  for (let [i, source] of sources.entries()) {
+    for (let [name,player] of Object.entries(playerDictBest)) {
+      playerDictBest[name].index[i] = source.table[0].length - source.cStart // index = length before push
+      source.table[0].push(new Run(name)) // not really a run, just player name data
+      for (let rowIndex = 1; rowIndex < source.table.length; rowIndex++) {
+        source.table[rowIndex].push(
+          player.rows[i].includes(rowIndex) ? source.table[rowIndex][source.cStart] : new Run()
+        )
+        source.table[rowIndex].at(-1).note = "" // clear note
       }
     }
   }
-  data.runs = Object.values(runs2) // runs2 converted back into an array
+  console.log("generated players")
+  let playerIndex = Object.values(Object.assign(playerDict,playerDictBest))
+  SHEET_DASH.getRange("A3").setValue(LOG_NAME_CHANGE.sort().join("\n"))
+  return [playerIndex, playerIndex]
 }

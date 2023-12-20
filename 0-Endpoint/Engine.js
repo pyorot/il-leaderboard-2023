@@ -21,9 +21,9 @@ function update() {
   // A | import
   let datas = generateData(SRC_ADDRESSES)
   // B | process
-  annotate(datas[0], "points") // annotate sms data for verification + sheet export
+  annotate(datas[1], "l1") // only need to annotate sm64/il data for sheet export
   SHEET_DASH.getRange("A1").setValue("[updating]")
-  detect(datas[0]) // il verification (sms only)
+  // detect(datas[0]) // il verification (sms only)
   // C | export
   for (let dst of DST_ADDRESSES) {
     let ss = dst.id == "this" ? SpreadsheetApp.getActiveSpreadsheet() : SpreadsheetApp.openById(dst.id)
