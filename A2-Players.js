@@ -28,6 +28,7 @@ function nameMerge(data) {
       if (row.head.colour.slice(-6) != "000000") {row2.head.colour = row.head.colour}
       for (let l = 0; l < data.levels.names.length; l++) {
         let [oldValue, newValue] = [row2.body[l].value, row.body[l].value]
+        let [oldLink , newLink ] = [row2.body[l].link , row.body[l].link ]
         if (newValue) {
           if (newValue == "x") {                  // delete
             row2.body[l] = new Run()
@@ -36,14 +37,18 @@ function nameMerge(data) {
             row2.body[l] = row.body[l]
             // console.log("+", name, "|", data.levels.codes[l], ":", (oldValue ? oldValue : "ø"), "→", newValue)
           }
-          // warn if time is a regression
+          // warnings about overrides
           let reversed = data.levels.reversed[l]
           let [oldTime, newTime] = [parseTime(oldValue), parseTime(newValue)]
-          if (oldTime && (newValue == "x" || (reversed ? -1 : 1) * (oldTime - newTime) < 0)) {
+          if (oldTime && (                                                // warn if an override is a:
+            newValue == "x" ||                                            // - deleted time
+            (reversed ? -1 : 1) * (oldTime - newTime) < 0 ||              // - inferior time
+            (oldTime == newTime && oldLink == newLink)                    // - identical time + link
+          )) {
             LOG_TIME_REVERT.push(`${name} | ${data.levels.codes[l]}: ${oldValue} → ${newValue}`)
           }
         } else if (row.body[l].note) {
-          row2.body[l].note = row.body[l].note    // override note (specified on empty cell)
+          row2.body[l].note = row.body[l].note    // override note only (specified on empty cell)
         }
       }
     }

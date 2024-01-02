@@ -93,8 +93,13 @@ function importTables(...sheetInfo) {
 // this function is much slower than importTables lol
 // this isn't guaranteed synced with the rest of the sheet data, but they're only colours, harmless if wrong
 function importColours(rangeQuery, ...sheetInfo) {
-  let output = sheetInfo.map((tag,i) => SpreadsheetApp.openById(tag.id).getSheetByName(tag.tab).getRange(rangeQuery)
-    .getFontColorObjects().map(row => row.map(cell => cell.asRgbColor().asHexString())))
+  let output = sheetInfo.map((tag,i) =>
+    SpreadsheetApp.openById(tag.id).getSheetByName(tag.tab).getRange(rangeQuery).getFontColorObjects().map(
+      r => r.map(c => c.getColorType() == SpreadsheetApp.ColorType.RGB ? c.asRgbColor().asHexString() : "#000000")
+      // what the fuck is this google? if someone sets a theme colour then you literally can't access it
+      // not only that but the code fucking crashes if you try. hence the ColorType.RGB check. verbose af
+    )
+  )
   console.log(`fetched colours`)
   return output
 }

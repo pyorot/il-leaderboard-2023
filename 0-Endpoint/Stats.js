@@ -2,11 +2,12 @@
 // the video routines are extremely useful for backing up videos, combined with yt-dlp --download-archive
 
 // shows the top ils in every level that lack video
-function statsMissingVideos() {
+function listMissingVideos() {
   let propThreshold = 0.9 // e.g. top 85%
   let absThreshold  = 3   // e.g. top 3 (medals)
 
-  let {levels, runs} = loadData()
+  let {levels, runs} = importData()
+  annotate({levels, runs}, "points")
   let [outProp, outAbs] = [[`== prop: ${propThreshold} ==`], [`== abs: ${absThreshold} ==`]]
   for (let [l, level] of levels.names.entries()) {
     for (let [p,run] of runs.map(row => row.body[l]).entries()) {
@@ -23,7 +24,8 @@ function statsMissingVideos() {
 function listTopVideos() {
   let n = 3 // e.g. top 3 (medals)
 
-  let {levels, runs} = loadData()
+  let {levels, runs} = importData()
+  annotate({levels, runs}, "points")
   let output = ""
   for (let l = 0; l < levels.names.length; l++) {
     let levelRuns = runs.map(row => row.body[l])
@@ -38,7 +40,7 @@ function listTopVideos() {
 function listPlayerVideos() {
   let name = ""
 
-  let data = loadData()
+  let data = importData()
   let players = generatePlayers(data)
   let p = players.indices[name] ?? 0
   let output = players.names[p] + ":\n"
