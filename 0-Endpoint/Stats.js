@@ -3,18 +3,21 @@
 
 // shows the top ils in every level that lack video
 function listMissingVideos() {
-  let propThreshold = 0.9 // e.g. top 85%
+  let propThreshold = 0.9 // e.g. top 90%
   let absThreshold  = 3   // e.g. top 3 (medals)
+  let absCap        = 20  // excludes any ils with rank > this number
 
   let {levels, runs} = importData()
   annotate({levels, runs}, "points")
   let [outProp, outAbs] = [[`== prop: ${propThreshold} ==`], [`== abs: ${absThreshold} ==`]]
   for (let [l, level] of levels.names.entries()) {
     for (let [p,run] of runs.map(row => row.body[l]).entries()) {
+      if (run.rank        >= absCap                    ) {continue}
       if (run.rankQuality >= propThreshold && !run.link) {outProp.push(`${runs[p].head.name.padEnd(20)} | ${level}`)}
       if (run.rank        <= absThreshold  && !run.link) { outAbs.push(`${runs[p].head.name.padEnd(20)} | ${level}`)}
     }
   }
+  for (let array of [outProp, outAbs]) { array.push(`[total: ${array.length-1}]`) }
   console.log(outProp.join("\n")); console.log(outAbs.join("\n"))
 }
 

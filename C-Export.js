@@ -8,7 +8,8 @@ function exportTable(data, sheet, rStart, cStart, displayScore) {
   // for standalone calls
   if (!data) {
     var data = importData(SpreadsheetApp.getActiveSpreadsheet().getSheetByName("DataLevels"))
-    annotate(data, "l1")
+    var displayScore = "l1"
+    annotate(data, displayScore)
   }
   if (!sheet) {var sheet = SpreadsheetApp.openById(FILE_OUT_TABLE).getSheetByName("SM64 XCam")}
   if (!rStart && !cStart) {var [rStart, cStart] = [1, 7] }
@@ -35,8 +36,13 @@ function exportTable(data, sheet, rStart, cStart, displayScore) {
     for (let l = 0; l < L; l++) {
       notes[p][l + L_START - 1] = body[l].note
       bodyFormulas[p][l] = body[l].link ? `=HYPERLINK("${body[l].link}","${body[l].value}")` : `"${body[l].value}"`
-      colours[p][l + L_START - 1] = [1,2,3].includes(body[l].rank) ? colourMedal[body[l].rank] // medal colour
-                                  : ((body[l].value && !body[l].time) ? colourError : null)    // error colour
+      if (body[l].value && !body[l].time) {
+        colours[p][l + L_START - 1] = colourError                     // error colour
+      } else if (!levels.medalless.includes(levels.codes[l]) && [1,2,3].includes(body[l].rank)) {
+        colours[p][l + L_START - 1] = colourMedal[body[l].rank]       // medal colour
+      } else {
+        colours[p][l + L_START - 1] = null
+      }
     }
   }
   let bolds = colours.map(row => row.map(x => x ? "bold" : null))
@@ -55,9 +61,10 @@ function exportTable(data, sheet, rStart, cStart, displayScore) {
   rangeFull.setVerticalAlignment("middle").setHorizontalAlignment("center").setFontSize(9).setFontFamily("Arial")
   sheet.getRange(P_START,1,P,1).setHorizontalAlignment("right")
   sheet.getRange(P_START,6,P,1).setFontStyle("italic")
-  // sheet.getRange(4, L_START, 1, L).setValues([levels.cutoffs]) // set cutoffs to 4th row (enable for sms)
-  for (let p = 0; p < P; p++) { for (let l = 0; l < L; l++) { if (runs[p].body[l].rank == 1) { // border highlights
-    rangeBody.getCell(p+1, l+1).setBorder(null,null,true,null,false,false,"black",borderStyle)
+  // let cutoffFmt = levels.cutoffs.map(t => t>=60? `${Math.floor(t/60)}:${(t%60).toFixed(2).padStart(5,'0')}` : (t?.toFixed(2)??""))
+  // sheet.getRange(4, L_START, 1, L).setValues([cutoffFmt])       // set cutoffs to 4th row (enable for sms)
+  for (let p = 0; p < P; p++) { for (let l = 0; l < L; l++) { if (colours[p][l + L_START - 1] == colourMedal[1]) {
+    rangeBody.getCell(p+1, l+1).setBorder(null,null,true,null,false,false,"black",borderStyle)  // border highlights
   }}}
   try {sheet.deleteRows(P_START + P, sheet.getMaxRows() - (P_START + P - 1))} catch(e) {} // prune empty rows
   console.log(`exported table to ${sheet.getName()}`)
@@ -73,11 +80,12 @@ function exportData(data, sheet) {
   // function
   // generate export data
   let {levels, runs} = data
-  let {entries, cutoffs, ...levelExport} = levels // remove entries and cutoffs from level before export
+  let {entries, ...levelExport} = levels // remove entries from level before export
   let dataExport = {
-    levels:  levelExport,
-    players: {names: runs.map(row => row.head.name), anon: ANON, anonHTML: genAnonHTML()},
-    body:    levels.names.map((_,l) => runs.map(row => [row.body[l].value, row.body[l].link, row.body[l].note])),
+    timestamp: new Date().toISOString(),
+    levels:    levelExport,
+    players:   {names: runs.map(row => row.head.name), anon: ANON, anonHTML: genAnonHTML()},
+    body:      levels.names.map((_,l) => runs.map(row => [row.body[l].value, row.body[l].link, row.body[l].note])),
   }
   let dataString = JSON.stringify(dataExport)
   // shard data
