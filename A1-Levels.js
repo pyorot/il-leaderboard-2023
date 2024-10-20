@@ -61,27 +61,32 @@ SM64_LEVELS = {
   // detected in either sheet; the strat numbers of #size rows starting here will be incremented by #stratOffset
   // so that they don't clash with previous strat numbers for the same level
   // see wf104 on ultimate sheet for how this should look in the original data source
+  // the -1 offset is a hack to invalidate a fake strat number being used for a partial level segment
   levelTextReplacement: {
+    "[1] Bomb Clip w/ slide beginning":               { size: 7, stratOffset: 4 },  // bob6
+    "[1] Bomb Clip w/ Goomba bounce":                 { size: 7, stratOffset: 10},  // bob6
+    "[1] Sideflip owlless":                           { size: 5, stratOffset: 5 },  // wf5
     "[1] Race + 100c atmpas special route (JP)":      { size: 5, stratOffset: 2 },  // ccm103
     "[1] Go on a Ghost Hunt (US)":                    { size: 3, stratOffset: 4 },  // bbh1
-    "[1] Reds + 100c Pond spindrift early (JP)":      { size: 4, stratOffset: 2 },  // sl105
-    "[1] Reds + 100c Spawn red star late route (JP)": { size: 6, stratOffset: 2 },  // ttm103
+    "[1] Reds + 100c Late reds star spawn route (JP)":{ size: 6, stratOffset: 2 },  // ttm103
     "[1] Reds + 100c 5 coins pole route (JP)":        { size: 4, stratOffset: 2 },  // thi105
     "[1] Reds + 100c 11 coins route (JP)":            { size: 4, stratOffset: 4 },  // thi105
+    "[1] 100c Pipe entry good RNG (- 16c)":           { size: 1, stratOffset: -1},  // thi105
     "[1] Thwomp + 100c w/ safety red (JP)":           { size: 4, stratOffset: 2 },  // ttc104
   },
   // these levels (from the extensions sheet) will be appended to level blocks in the ultimate sheet
   levelSplices: {
     "[1] KtQ w/o cannon cutscene (JP)":                    "bob2",
     "[1] Island hop w/ TJ":                                "bob3",
-    "[1] Bomb Clip Throw + Backflip":                      "bob6",
-    "[1] Tower Elevator triple jump (No quickturn)":       "wf2",
+    "[1] Reds + 100c w/ double star spawn (JP)":           ["bob104","bbh104"],
+    "[1] Bomb Clip Throw clip -> Backflip":                "bob6",
+    "[1] Whomp w/ double JD (JP)":                         "wf1",
+    "[1] Fortress w/ elevator TJ (No quickturn)":          "wf2",
     "[1] Reds + 100c Ultimate cycle (JP)":                 "wf104",
-    "[1] Cage Sideflip + Wallkick":                        "wf5",
-    "[1] Cannonless Clip onto the bridge":                 "wf6",
-    "[1] Sunken Ship Ending punch strat":                  "jrb1",
-    "[1] Eel w/ Cannon BLJ":                               "jrb2",
-    "[1] Cave w/ Cannon BLJ":                              "jrb3",
+    "[1] Double jump owlless w/ direct GP":                "wf5",
+    "[1] Cannonless w/ plank JD clip":                     "wf6",
+    "[1] Eel w/ cannon BLJ":                               "jrb2",
+    "[1] Cave w/ cannon BLJ":                              "jrb3",
     "[1] Cannonless Longjump from the ship (US)":          "jrb5",
     "[1] Slide + 100c Blue coin switch route (JP)":        "ccm101",
     "[1] Lil penguin Pingu trick (JP)":                    "ccm2",
@@ -92,26 +97,26 @@ SM64_LEVELS = {
     "[1] Go on a Ghost Hunt (JP, Text skip)":              "bbh1",
     "[1] Book phantaxx ending":                            "bbh3",
     "[1] Reds + 100c w/o Salt clip (JP)":                  "hmc102",
-    "[1] Metal-Head BLJ strat (w/ Air BLJ)":               "hmc3",
+    "[1] Metal-Head BLJ strat (w/ air BLJ)":               "hmc3",
     "[1] Toxic Maze Instant clip":                         "hmc4",
     "[1] Exit Left LJ + TJ (Expert)":                      "hmc5",
-    "[1] Rocks C-Up slide strat (Right side)":             "hmc6",
     "[1] Big Bully Double burn + Rollout onto platform":   "lll1",
-    "[1] Bullies LJ onto sinking platform + DJ dive":      "lll2",
+    "[1] Bullies LJ onto sinking platform -> DJ dive":     "lll2",
     "[1] Log Double jump + Longjump strat":                "lll4",
     "[1] Volcano + 100c Lava boost route (JP)":            "lll105",
     "[1] Talons Speed punch x2 strat":                     "ssl1",
     "[1] Pillarless Nuts":                                 "ssl3",
-    "[1] Pazzle Pillarless Nuts":                          "ssl6",
+    "[1] Puzzle Pillarless Nuts":                          "ssl6",
     "[1] Reds Get the pond red #6 (Speed wing)":           "ssl5",
     "[1] Puzzle + 100c 4th pillar first route (JP)":       "ssl106",
-    "[1] DDD Side sub":                                    "ddd1",
-    "[1] Chest down warp strat":                           "ddd2",
+    "[1] Side sub":                                        "ddd1",
+    "[1] Chest Down warp strat":                           "ddd2",
     "[1] Snowman Singlestar strat":                        "sl1",
     "[1] Bully Dive + Z strat":                            "sl2",
     "[1] Pond Slide + Jump x1 strat (Intermediate strat)": "sl4",
     "[1] Reds Slide + Jump x2 dive strat":                 "sl5",
-    "[1] Into the Igloo (phantaxx inside)":                "sl6",
+    "[1] Reds + 100c Pond spindrift early route (JP)":     "sl105",
+    "[1] Into the Igloo w/ phantaxx inside":               "sl6",
     "[1] Lift Mid water level strat":                      "wdw1",
     "[1] Top o' the Town (Sideflip)":                      "wdw2",
     "[1] Express Elevator--Hurry Up! (Sideflip)":          "wdw4",
@@ -119,17 +124,18 @@ SM64_LEVELS = {
     "[1] Lonely Mushroom No setup box strat":              "ttm6",
     "[1] Box w/ ledgegrab cancel":                         "thi2",
     "[1] RKtQ Mountain clip route (JP)":                   "thi3",
-    "[1] 100c Enter the pipe good RNG (- 16c)":            "thi105",
     "[1] Rematch with Koopa the Quick + 100c (JP)":        "thi103",
+    "[0] 100c Pipe entry good RNG (- 16c)":                "thi105",  // number edited in levelTextReplacement
+    "[1] Wiggler w/ TJ dive beginning (JP)":               "thi6",
     "[1] Cage Low dive ending":                            "ttc1",
     "[1] Get a Hand LJ x3 strat":                          "ttc3",
-    "[1] Bars Time moving (Fast)":                         "ttc5",
+    "[1] Bars Time moving (Fast, Any strat)":              "ttc5",
     "[1] Reds Rollout ending":                             "ttc6",
-    "[1] Cruiser w/ Assless (w/ Small DJ)":                "rr1",
+    "[1] RR Cruiser w/ low DJ assless":                    "rr1",
     "[1] Big House + 100c w/ Carpetless (JP, PAUSE TIME INCLUDED)": "rr102",
-    "[1] Reds w/ GWK beginning":                           "rr3",
-    "[1] Breeze Beginning down / Triple jump ending":      "rr4",
-    "[1] Cannon w/ Assless (w/ Small DJ)":                 "rr6",
+    "[1] RR Reds w/ GWK beginning":                        "rr3",
+    "[1] Breeze Beginning down + TJ dive ending":          "rr4",
+    "[1] RR Cannon w/ low DJ assless":                     "rr6",
     "[1] TotWC Reds Rollout onto the switch":              "wc",
     "[1] WMotR Reds #2 late":                              "cloud",
     "[1] PSS U21 Late wall bounce strat":                  "pss",
@@ -157,14 +163,17 @@ function genLevels(sources) {
   let header0 = sources[0].table.map(row => row[0].value).slice(sources[0].rStart)  // ultimate sheet
   let header1 = sources[1].table.map(row => row[0].value).slice(sources[1].rStart)  // extensions sheet
   
-  // run levelTextReplacement on ultimate sheet
+  // run levelTextReplacement on both sheets
   for (let [text, fix] of Object.entries(SM64_LEVELS.levelTextReplacement)) {
-    let l = header0.indexOf(text); if (l == -1) {throw `text fix not found: ${text}`}
-    for (let l_ = l; l_ < l + fix.size; l_++) {
-      let oldNumbers = header0[l_].trim().slice(0, header0[l_].trim().indexOf(" ")) // e.g. "[1|2]"
-      let numbers = oldNumbers
-      for (let i=1; i<=fix.stratOffset; i++) {numbers = numbers.replaceAll(String(i), String(i + fix.stratOffset))}
-      header0[l_] = header0[l_].replace(oldNumbers, numbers) // e.g. "[1|2]" → "[3|4]"
+    for (let header of [header0, header1]) {
+      let l = header.indexOf(text); if (l == -1) {continue}
+      for (let l_ = l; l_ < l + fix.size; l_++) {
+        let oldNumbers = header[l_].trim().slice(1, header[l_].trim().indexOf("]")) // e.g. "1|2"
+        let numbers = oldNumbers.split("|").map(i => String(parseInt(i)+fix.stratOffset)).join("|")
+        header[l_] = header[l_].replace(oldNumbers, numbers) // e.g. "[1|2]" → "[3|4]"
+        //console.log(`levelTextReplacement: ${header[l_]}`)
+      }
+      delete SM64_LEVELS.levelTextReplacement[text]
     }
   }
 
@@ -184,11 +193,11 @@ function genLevels(sources) {
   {
     let world, worldName, worldCode, levelName, levelCode // state variables, between iterations
     for (let [l,text] of header0.entries()) {
-      let match = text.match(/^\s*(\[[\d\|]+\])\s+(.+)(?<![\)\s])(\s+\(.+\))?\s*$/)
+      let match = text.match(/^\s*(\[[\d\|]+\])\s+(.+)(?<![\)\s])(\s*\(.+\))?\s*$/)
       if (match) {  // if not a divider (= non-blank header column)
         let [_, stratNumbers, name, details] = match
         let [hundo, nameRaw] = [name.includes(" + 100c"), name.replace(" + 100c", "")]
-        // console.log(`${stratNumbers}/${name}/${details}/1${hundo?"00":""}`) // regex log
+        //console.log(`r/${stratNumbers}/${name}/${details??"ø"}/1${hundo?"00":""}`) // regex log
         // detect new level
         if (stratNumbers == "[1]") {
           if (world.substring(0,6) != "Castle") {
@@ -207,14 +216,14 @@ function genLevels(sources) {
           levelName = levelDict[worldCode][levelCode].name // so levelName = name if newly found, else persists
         }
         // process strat
-        let full = parseInt(stratNumbers[1]) > levelDict[worldCode][levelCode].full.length && stratNumbers[2] == "]"
+        let full = stratNumbers.match(/^\[(\d+)\]$/)?.[1] > levelDict[worldCode][levelCode].full.length
         let levelGroup = levelDict[worldCode][levelCode][full ? "full" : "part"]
         levelGroup.push({
           name:  `${worldName} | ${levelName} | ${text.replace(" "+levelName,"").trim()}`,
           code:  `${levelCode}-${full ? levelGroup.length+1 : String.fromCharCode(levelGroup.length+1 + 96)}`,
           index: [l, undefined],
         })
-        //console.log(`${levelGroup.at(-1).index[0]} | ${levelGroup.at(-1).code} | ${levelGroup.at(-1).name}`)//out
+        //console.log(`${levelGroup.at(-1).index[0]} | ${levelGroup.at(-1).code} | ${levelGroup.at(-1).name}`) // output log
       } else {  // if divider
         // detect new world
         if (text && text[0] != "★") {
@@ -222,7 +231,7 @@ function genLevels(sources) {
           worldName = SM64_LEVELS.worldNames[world]
           worldCode = worldName?.toLowerCase()
           if (worldCode && !(worldCode in levelDict)) { levelDict[worldCode] = new WorldEntry(worldName) }
-          // console.log(`world: ${worldCode} | ${world}`) // world log
+          //console.log(`world: ${worldCode} | ${world}`) // world log
         }
       }
     }
@@ -232,13 +241,17 @@ function genLevels(sources) {
   {
     let world, worldCode, worldName, levelCode, levelName // state variables, between iterations
     for (let [l,text] of header1.entries()) {
-      let match = text.match(/^\s*(\[[\d\|]+\])\s+(.+)(?<![\)\s])(\s+\(.+\))?\s*$/) // exact same regex as before
+      let match = text.match(/^\s*(\[[\d\|]+\])\s+(.+)(?<![\)\s])(\s*\(.+\))?\s*$/) // exact same regex as before
       if (match) {  // if not a divider (= non-blank header column)
-        let [_, stratNumbers, name] = match
+        let [_, stratNumbers, name, details] = match
+        //console.log(`r/${stratNumbers}/${name}/${details??"ø"}`) // regex log
         // detect new level (the bottom 2 lines don't change anything if levelCode stays the same)
-        if (stratNumbers == "[1]") {
+        if (["[1]","[0]"].includes(stratNumbers)) {
           if (SM64_LEVELS.levelSplices[text]) {              // splice: override level code
-            levelCode = SM64_LEVELS.levelSplices[text]
+            if (typeof(SM64_LEVELS.levelSplices[text]) != "object") {SM64_LEVELS.levelSplices[text]=[SM64_LEVELS.levelSplices[text]]}
+            levelCode = SM64_LEVELS.levelSplices[text][0]
+            SM64_LEVELS.levelSplices[text] = SM64_LEVELS.levelSplices[text].slice(1)
+            if (SM64_LEVELS.levelSplices[text].length == 0) {delete SM64_LEVELS.levelSplices[text]}
           } else if (world.substring(0,8) == "Castle (") {  // castle movement: name to initials
             levelCode = name.split(/[\s\-]+/).map(word=>word[0]).join("").replaceAll("☆","*")
           }
@@ -246,14 +259,14 @@ function genLevels(sources) {
           levelName = levelDict[worldCode][levelCode].name // so levelName = name if newly found, else persists
         }
         // process strat
-        let full = parseInt(stratNumbers[1]) > levelDict[worldCode][levelCode].fullx.length && stratNumbers[2]=="]"
+        let full = stratNumbers.match(/^\[(\d+)\]$/)?.[1] > levelDict[worldCode][levelCode].fullx.length
         let levelGroup = levelDict[worldCode][levelCode][full ? "fullx" : "partx"]
         levelGroup.push({
           name: `${worldName} ¦ ${levelName} | ${text.replace(" "+levelName,"").trim()}`,
           code: `${levelCode}-${full ? levelGroup.length+1 : String.fromCharCode(levelGroup.length+1 + 96)}x`,
           index: [undefined, l],
         })
-        // console.log(`${levelGroup.at(-1).index[1]} | ${levelGroup.at(-1).code} | ${levelGroup.at(-1).name}`)//out
+        //console.log(`${levelGroup.at(-1).index[1]} | ${levelGroup.at(-1).code} | ${levelGroup.at(-1).name}`) // output log
       } else {  // if divider
         // detect new world
         if (text && text[0] != "★") {
@@ -261,7 +274,7 @@ function genLevels(sources) {
           worldName = SM64_LEVELS.worldNames[world]
           worldCode = worldName?.toLowerCase()
           if (worldCode && !(worldCode in levelDict)) { levelDict[worldCode] = new WorldEntry(worldName) }
-          // console.log(`world: ${SM64_LEVELS.worldNames[world]?.toLowerCase()} | ${world}`) // world log
+          //console.log(`world: ${SM64_LEVELS.worldNames[world]?.toLowerCase()} | ${world}`) // world log
         }
       }
     }
@@ -307,6 +320,8 @@ function genLevels(sources) {
       })
     }
   }
+  console.log("unused level text replacements:", SM64_LEVELS.levelTextReplacement)
+  console.log("unused level splices:", SM64_LEVELS.levelSplices)
   console.log("generated levels")
   return [levelsUlt, levelsIl]
 }

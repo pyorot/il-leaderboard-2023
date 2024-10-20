@@ -36,7 +36,7 @@ function calc(data, l) {
   }
   // entry counts and video cutoffs
   data.levels.entries[l] = series.length
-  data.levels.cutoffs[l] = series[cutoffRank(series.length)-1]?.time   // cutoff times (undefined means no cutoff)
+  // data.levels.cutoffs[l] = series[cutoffRank(series.length)-1]?.time   // cutoff times (undefined means no cutoff)
 }
 
 
