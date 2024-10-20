@@ -34,13 +34,9 @@ function calc(data, l) {
       prevTime = x.time
     }
   }
-  // entry counts
+  // entry counts and video cutoffs
   data.levels.entries[l] = series.length
-  // video cutoffs | we count good-enough runs according to rankQuality and rank, then get cutoff time
-  let rqCount = series.filter(x => x.rankQuality >= data.levels.cutoffLimits?.rq).length
-  let rCount  = series.filter(x => x.rank        <= data.levels.cutoffLimits?.r ).length
-  let ct = series[Math.max(rqCount,rCount) - 1]?.time                    // cutoff time (undefined means no cutoff)
-  data.levels.cutoffs[l] = ct>=60?`${Math.floor(ct/60)}:${(ct%60).toFixed(2).padStart(5,'0')}`:(ct?.toFixed(2)??"")
+  data.levels.cutoffs[l] = series[cutoffRank(series.length)-1]?.time   // cutoff times (undefined means no cutoff)
 }
 
 

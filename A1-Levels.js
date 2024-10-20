@@ -5,11 +5,11 @@ function generateLevels(source) {
                     "Sirena":"s","Noki":"n","Pianta":"q","Delfino":""}
   let levels = {                                      // this is the layout of data.levels
     names: [], indices: {}, reversed: [], codes: [],  // statically computed here
-    entries: [], cutoffs: [],                         // computed later as part of processing (not exported)
+    entries: [],                                      // computed later as part of processing (not exported)
+    cutoffs: [],                                      // computed later as part of processing (and exported)
     aggregates: undefined,                            // statically computed; for leaderboard viewer
     isotopes:   {"peyg": "peygj", "s6": "s6j"},       // for calculation adjustments
     medalless:  ["bp"],                               // for calculation adjustments
-    cutoffLimits: {rq: 0.85, r: 3},                   // thresholds: rankQuality >= rq, rank <= r
     helpHTML:   genHelpHTML(),                        // statically computed; for leaderboard viewer
   }
   for (let l = 0; l < header[0].length; l++) {
@@ -127,3 +127,7 @@ function genHelpHTML() { return `
     <br>g1s p2 p2s p3 p6s s2 s2s s3 s4 s4s
     <br>n1 n2 n6 n6s q3 q4 q6 c</code></p>
 `}
+
+
+// maps number of level entries to the highest rank required to have video; formula is rankQuality>=0.85 truncated into [3,20]
+function cutoffRank(n) { return Math.min(n, Math.max(3, Math.min(20, Math.floor(1 + 0.15*n)))) }

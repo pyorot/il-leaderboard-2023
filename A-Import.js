@@ -16,7 +16,7 @@ function importData(sheet) {
   // function
   let shards = sheet.getRange(2,1,sheet.getLastRow()-1,1).getDisplayValues()
   let {levels, players, body} = JSON.parse(shards.map(shard => shard[0] == "'" ? shard.slice(1) : shard).join(""))
-  levels = {...levels, entries: [], cutoffs: []}
+  levels = {...levels, entries: [], cutoffs: []}   // entries/cutoffs in levels are overridden if they exist
   let runs = players.names.map((_,p) => ({
     head: {name: players.names[p]},
     body: levels.names.map((_,l) => new Run(...body[l][p]))

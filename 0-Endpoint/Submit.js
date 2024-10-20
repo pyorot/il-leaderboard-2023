@@ -47,6 +47,7 @@ function submit(e) {
   let rtv = SpreadsheetApp.newRichTextValue().setText(time ?? "")
   if (link) {rtv.setLinkUrl(link)}
   sheetILs.getRange(r+1, c+1).setFontLine(null).setFontColor("black").setRichTextValue(rtv.build()).setNote(note)
+  SpreadsheetApp.flush()
   console.log(`submit succeeded`)
 
   update()

@@ -1,4 +1,6 @@
 SMS_ALIAS = {}
+// see C-Export.gs for identifiers of hidden players
+// when changing anons, remember to update Add and VCache tabs
 
 
 // replaces names according to ALIAS dictionary
