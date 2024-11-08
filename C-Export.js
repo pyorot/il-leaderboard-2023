@@ -80,12 +80,17 @@ function exportData(data, sheet) {
   // function
   // generate export data
   let {levels, runs} = data
-  let {entries, ...levelExport} = levels // remove entries from level before export
+  let {entries, indices, ...levelExport} = levels // remove entries and indices from levels before export
   let dataExport = {
-    timestamp: new Date().toISOString(),
-    levels:    levelExport,
-    players:   {names: runs.map(row => row.head.name), anon: ANON, anonHTML: genAnonHTML()},
-    body:      levels.names.map((_,l) => runs.map(row => [row.body[l].value, row.body[l].link, row.body[l].note])),
+    timestamp:  new Date().toISOString(),
+    version:    "2.3",
+    levels:     levelExport,
+    players:    {names: runs.map(row => row.head.name), anon: ANON, anonHTML: genAnonHTML()},
+    body:       levels.names.map((_,l) => runs.map(row => {
+                  let run = [row.body[l].value, row.body[l].link, row.body[l].note]
+                  for (let i=run.length-1; i>=0; i--) { if (run[i] === "") { run.pop() } else { break } } // trim arrays of ""
+                  return run
+                })),
   }
   let dataString = JSON.stringify(dataExport)
   // shard data

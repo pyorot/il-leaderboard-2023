@@ -1,5 +1,7 @@
 // creates level data from header (top few rows) of sheet
 function generateLevels(source) {
+  if (!source) {source = importTables({id: FILE_IN_OFF, tab: "ILs", r: 4, c: 7, pAxis:"r"})[0]}
+  // function
   let header = source.table.slice(0, source.rStart).map(row => row.slice(source.cStart).map(cell => cell.value))
   let worldCodes = {"Bianco":"b","Ricco":"r","Gelato":"g","Pinna":"p",
                     "Sirena":"s","Noki":"n","Pianta":"q","Delfino":""}
@@ -27,7 +29,7 @@ function generateLevels(source) {
       levels.reversed[l] = false
       levels.codes[l]    = ""                         // viewer app excludes from hashes by empty code
     }
-    levels.indices[levels.names[l]] = l
+    levels.indices[levels.names[l]] = l               // used only by B-Verify.js; it's stripped from exported json
   }
   levels.aggregates = genAggregates(levels.codes, levels.isotopes)
   console.log(`generated levels`)
